@@ -46,7 +46,7 @@ implicit none
     abstract interface
         subroutine called_proc2 (i) bind(c)
             use, intrinsic :: iso_c_binding
-            integer(c_int), intent(inout) :: i
+            real(c_double), intent(inout) :: i
         end subroutine called_proc2
     end interface
 
@@ -55,7 +55,7 @@ implicit none
     type(c_funptr) :: proc_addr
     type(c_ptr) :: handle
     character(256) :: pName, lName
-    integer j, k
+    real(c_double) j, k
 
     procedure(called_proc), bind(c), pointer :: proc
     procedure(called_proc2), bind(c), pointer :: proc2

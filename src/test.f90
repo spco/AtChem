@@ -16,9 +16,9 @@ contains
     end subroutine t_square
 
     subroutine j_update(j_in) bind(c,name='j_update')
-            integer(c_int), intent(inout) :: j_in
+            real(c_double), intent(inout) :: j_in
 
-            j_in = 2
+            j_in = 0.5
     end subroutine j_update
 
 end module test
