@@ -59,6 +59,25 @@ implicit none
 
     procedure(called_proc), bind(c), pointer :: proc
     procedure(called_proc2), bind(c), pointer :: proc2
+
+    integer :: cmd_arg_count
+    character(len=10) :: j_size_str
+    integer :: j_size
+
+    cmd_arg_count = command_argument_count()
+    if ( cmd_arg_count > 0 ) then
+      call get_command_argument( 1, j_size_str )
+      read(j_size_str,*) j_size
+      write(*,*) j_size_str, j_size, j_size_str
+    else
+      stop
+    end if
+
+    write(*,*) 'about to allocate'
+    allocate(j(j_size))
+    write(*,*) 'allocated'
+
+    write(*,*) 'setting i'
     i = 15
 
     handle=dlopen("./test.so"//c_null_char, RTLD_LAZY)
@@ -73,6 +92,7 @@ implicit none
         stop
     end if
     call c_f_procpointer( proc_addr, proc )
+    write(*,*) 'calling proc'
     call proc(i,i2)
     write(*,*) "t_times2, i2=", i2
     !
@@ -85,10 +105,9 @@ implicit none
     call proc(i,i2)
     write(*,*) "t_square, i2=", i2
 
-    allocate(j(2))
     j(1) = 0
     j(2) = 0
-
+    write(*,*) 'assigned'
     write(*,*) j
     proc_addr=dlsym( handle, "j_update"//c_null_char )
     if ( .not. c_associated(proc_addr) )then
