@@ -210,10 +210,10 @@ contains
 
     ! Define interface of call-back routine.
     abstract interface
-      subroutine called_proc (i, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14) bind(c)
+      subroutine called_proc (i, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15) bind(c)
         use, intrinsic :: iso_c_binding
         real(c_double), intent(inout) :: i(:), i2(:)
-        real(c_double), intent(in) :: i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14(:)
+        real(c_double), intent(in) :: i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14(:), i15
       end subroutine called_proc
     end interface
 
@@ -221,6 +221,7 @@ contains
 
     type(c_funptr) :: proc_addr
     type(c_ptr) :: handle
+    integer :: closure
 
     real(kind=DP), intent(in) :: t
     real(kind=DP), intent(in) :: y(:)
@@ -233,9 +234,9 @@ contains
 
     real(kind=DP) :: n2, o2, m, rh, h2o, dec, blheight, dilute, jfac, roofOpen
 
-    handle=dlopen("./mechanism.so"//c_null_char, RTLD_LAZY)
+    handle=dlopen("./mechanism-rate-coefficients.so"//c_null_char, RTLD_LAZY)
     if (.not. c_associated(handle))then
-        print*, 'Unable to load DLL ./mechanism.so'
+        print*, 'Unable to load DLL ./mechanism-rate-coefficients.so'
         stop
     end if
 
@@ -304,8 +305,12 @@ contains
       stop
     end if
     call c_f_procpointer(proc_addr, proc)
-    call proc(p, q, temp, n2, o2, m, rh, h2o, dec, blheight, dilute, jfac, roofOpen, j)
-
+    call proc(p, q, temp, n2, o2, m, rh, h2o, dec, blheight, dilute, jfac, roofOpen, j, ro2)
+    closure=dlclose(handle)
+    ! if (.not. assigned(closure)) then
+        ! print*, 'Unable to close DLL ./mechanism-rate-coefficients.so'
+        ! stop
+    ! end if
     return
   end subroutine mechanism_rates
 
